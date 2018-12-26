@@ -322,6 +322,9 @@ public final class OcrCaptureActivity extends AppCompatActivity {
      */
     private boolean onTap(float rawX, float rawY) {
         OcrGraphic graphic = mGraphicOverlay.getGraphicAtLocation(rawX, rawY);
+
+        //OcrGraphic graphicXXX = mGraphicOverlay.getGraphicAtLocation(rawX, rawY+10);
+
         TextBlock text = null;
         if (graphic != null) {
             text = graphic.getTextBlock();
