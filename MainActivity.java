@@ -106,7 +106,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 if (data != null) {
                     String text = data.getStringExtra(OcrCaptureActivity.TextBlockObject);
                     statusMessage.setText(R.string.ocr_success);
-                    parseMedication(text);
+                    textValue.setText(text);
+                    //parseMedication(text);
                     Log.d(TAG, "Text read: " + text);
                 } else {
                     statusMessage.setText(R.string.ocr_failure);

@@ -37,6 +37,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -321,18 +322,48 @@ public final class OcrCaptureActivity extends AppCompatActivity {
      * @return true if the activity is ending.
      */
     private boolean onTap(float rawX, float rawY) {
+
         OcrGraphic graphic = mGraphicOverlay.getGraphicAtLocation(rawX, rawY);
-
-        //OcrGraphic graphicXXX = mGraphicOverlay.getGraphicAtLocation(rawX, rawY+10);
-
         TextBlock text = null;
+
+        // Capture an array of graphics
+        OcrGraphic[] graphicsArray = new OcrGraphic[20];
+        for (int i = 0; i < 10; i++)
+        {
+            graphicsArray[i] = mGraphicOverlay.getGraphicAtLocation(rawX, rawY + i*20);
+        }
+        TextBlock[] textArray = new TextBlock[20];
+
+
         if (graphic != null) {
+
+
             text = graphic.getTextBlock();
+
+            // Populate textArray with valid text blocks
+            String textString = "";
+            for (int i = 0; i < 10; i++)
+            {
+                if (graphicsArray[i] != null){
+                    textArray[i] = graphicsArray[i].getTextBlock();
+                    textString = textString + "XXX" + textArray[i].getValue();
+                }
+            }
+
+
             if (text != null && text.getValue() != null) {
+
                 Intent data = new Intent();
-                data.putExtra(TextBlockObject, text.getValue());
+                //data.putExtra(TextBlockObject, text.getValue());
+                data.putExtra(TextBlockObject, textString);
                 setResult(CommonStatusCodes.SUCCESS, data);
                 finish();
+
+
+
+
+
+
             }
             else {
                 Log.d(TAG, "text data is null");
