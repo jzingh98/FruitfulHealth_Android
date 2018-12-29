@@ -27,6 +27,14 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import java.util.regex.Pattern;
+
 /**
  * Main activity demonstrating how to pass extra parameters to an activity that
  * recognizes text.
@@ -104,10 +112,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
         if(requestCode == RC_OCR_CAPTURE) {
             if (resultCode == CommonStatusCodes.SUCCESS) {
                 if (data != null) {
+                    // Capture Text
                     String text = data.getStringExtra(OcrCaptureActivity.TextBlockObject);
                     statusMessage.setText(R.string.ocr_success);
-                    textValue.setText(text);
+                    //textValue.setText(text);
                     //parseMedication(text);
+
+                    // Interpret Listings
+                    String[] separatedListings = separateListings(text);
+                    String[] medOnlyListings = parseListings(separatedListings);
+
+                    textValue.setText(Arrays.toString(medOnlyListings));
+
+
                     Log.d(TAG, "Text read: " + text);
                 } else {
                     statusMessage.setText(R.string.ocr_failure);
@@ -124,19 +141,86 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
 
-    public void parseMedication(String scannedText) {
-        String arr[] = scannedText.split(" ", 100);
+    /**
+     * Array concatenation function
+     */
+    public static String[] addToStringArray(String[] originalArray, String newItem)
+    {
+        int currentSize = originalArray.length;
+        int newSize = currentSize + 1;
+        String[] tempArray = new String[ newSize ];
+        for (int i=0; i < currentSize; i++)
+        {
+            tempArray[i] = originalArray [i];
+        }
+        tempArray[newSize- 1] = newItem;
+        return tempArray;
+    }
 
+
+
+    /**
+     * @param  scannedText: Raw string of scanned text returned by OCRCaptureActivity
+     * @return newMedArray: Array of strings corresponding to each graphic scanned
+     * Separates the scanned text into an array of strings using the delimeter XXX.
+     * Also removes duplicate entries.
+     */
+    public String[] separateListings(String scannedText) {
+
+        String medNameArray[] = scannedText.split("XXX", 20);
+
+        // Remove duplicates
+        Set<String> set = new HashSet<String>();
+        Collections.addAll(set, medNameArray);
+        String[] newMedArray = set.toArray(new String[0]);
+
+        // DEBUG: Number of entries
+        //String a = Integer.toString(medNameArray.length);
+        //String b = Integer.toString(newMedArray.length);
+
+        return newMedArray;
+    }
+
+
+
+    /**
+     * @param  scannedArray: Array of scanned text returned by this.separateListings()
+     * @return medsOnlyArray: Array of strings corresponding only to medications
+     * Removes entries from scannedArray that do not correspond to medications
+     */
+    public String [] parseListings(String[] scannedArray) {
+        String[] medsOnlyArray = new String[0];
+        for (String aScannedArray : scannedArray) {
+            String[] thisFeatures = parseMedication(aScannedArray);
+
+            if ((thisFeatures[2].equals(""))) {
+                Log.d(TAG, "removed: ");
+            } else {
+                medsOnlyArray = addToStringArray(medsOnlyArray, aScannedArray);
+            }
+        }
+        return medsOnlyArray;
+    }
+
+
+
+    /**
+     * @param  scannedText: String corresponding to an entry
+     * @return parsedMedicationArray: Array of strings corresponding to
+     *          successfully parsed features of the entry
+     * Attempts to parse the name, dosage, unit, action, and instructions from an entry
+     */
+    public String[] parseMedication(String scannedText) {
+        String arr[] = scannedText.split(" ", 100);
         String unit = "";
         String dosage = "";
         String medname = "";
         String action = "";
         String instruction = "";
 
-
+        // Parse the medication string
         for (int i = 0; i < arr.length; i++) {
             String currentWord = arr[i];
-
             // Parse units, dosage, and medication name
             if (currentWord.equals("mg") || currentWord.equals("%") ||
                     currentWord.equals("mcg/actuation") || currentWord.equals("gram") ||
@@ -147,7 +231,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 dosage = arr[i-1];
                 medname = mednameArray[0];
             }
-
             // Parse action and instruction
             if (currentWord.contains("Take") || currentWord.contains("Instill") ||
                     currentWord.contains("Apply") || currentWord.contains("Spray")) {
@@ -162,24 +245,32 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 String intructionArray[] = scannedText.split(arr[i], 2);
                 instruction = intructionArray[1];
             }
-
         }
+        // Package contents into a string array
+        String[] parsedMedicationArray = new String[5];
+        parsedMedicationArray[0] = medname;
+        parsedMedicationArray[1] = dosage;
+        parsedMedicationArray[2] = unit;
+        parsedMedicationArray[3] = action;
+        parsedMedicationArray[4] = instruction;
 
+        return parsedMedicationArray;
 
-        textValue.setText("M: " + medname + "\nD: " + dosage + "\nU: " + unit +
-                "\nA: " + action + "\nI: " + instruction);
+//        textValue.setText("M: " + medname + "\nD: " + dosage + "\nU: " + unit +
+//                "\nA: " + action + "\nI: " + instruction);
 
-
-        Intent i = new Intent(this, MedEntry.class);
-        i.putExtra("MedName", medname);
-        i.putExtra("Dosage", dosage);
-        i.putExtra("Unit", unit);
-        i.putExtra("Instruction", instruction);
-        startActivity(i);
-
-
-
+//        Intent i = new Intent(this, MedEntry.class);
+//        i.putExtra("MedName", medname);
+//        i.putExtra("Dosage", dosage);
+//        i.putExtra("Unit", unit);
+//        i.putExtra("Instruction", instruction);
+//        startActivity(i);
     }
+
+
+
+
+    
 
 
 }

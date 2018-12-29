@@ -326,7 +326,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         OcrGraphic graphic = mGraphicOverlay.getGraphicAtLocation(rawX, rawY);
         TextBlock text = null;
 
-        // Capture an array of graphics
+        // Capture two arrays of graphics
         OcrGraphic[] graphicsArray = new OcrGraphic[20];
         for (int i = 0; i < 10; i++)
         {
