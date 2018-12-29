@@ -9,12 +9,20 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.google.android.gms.common.api.CommonStatusCodes;
+
 
 public class ConfirmMed extends Activity implements View.OnClickListener{
 
     private TextView nameView;
     private TextView dosageView;
     private TextView instructionView;
+    private String medEntry;
+    private int medId;
+    String MedName;
+    String Dosage;
+    String Unit;
+    String Instruction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,41 +30,30 @@ public class ConfirmMed extends Activity implements View.OnClickListener{
         setContentView(R.layout.confirm_med);
         findViewById(R.id.save_button).setOnClickListener(this);
 
-        // Load intent extras
-        String newString;
-        String MedName;
-        String Dosage;
-        String Unit;
-        String Instruction;
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if(extras == null) {
-                MedName = "ERROR";
-                Dosage = "ERROR";
-                Unit = "ERROR";
-                Instruction = "ERROR";
+                medEntry = "Medication";
+                medId = -1;
             } else {
-                MedName = extras.getString("MedName");
-                Dosage = extras.getString("Dosage");
-                Unit = extras.getString("Unit");
-                Instruction = extras.getString("Instruction");
+                medEntry = extras.getString("Medication");
+                medId = extras.getInt("Id");
             }
         } else {
-            MedName = (String) savedInstanceState.getSerializable("MedName");
-            Dosage = (String) savedInstanceState.getSerializable("Dosage");
-            Unit = (String) savedInstanceState.getSerializable("Unit");
-            Instruction = (String) savedInstanceState.getSerializable("Instruction");
+            medEntry = (String) savedInstanceState.getSerializable("Medication");
+            medId = (int)savedInstanceState.getSerializable("Id");
         }
 
 
-        // Update text views with received extras
-        nameView = (TextView)findViewById(R.id.name_view);
-        dosageView = (TextView)findViewById(R.id.dosage_view);
-        instructionView = (TextView)findViewById(R.id.instruction_view);
+        // Update views with received extras
+//        nameView = (TextView)findViewById(R.id.name_view);
+//        dosageView = (TextView)findViewById(R.id.dosage_view);
+//        instructionView = (TextView)findViewById(R.id.instruction_view);
+        // Call function to update views
 
-        nameView.setText(MedName);
-        dosageView.setText(Dosage + Unit);
-        instructionView.setText(Instruction);
+//        nameView.setText(MedName);
+//        dosageView.setText(Dosage + Unit);
+//        instructionView.setText(Instruction);
 
     }
 
@@ -68,12 +65,26 @@ public class ConfirmMed extends Activity implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.save_button) {
-            // Launch scanner
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
+            // Return to MedScannedListings
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("result", correctlyConfigured());
+            returnIntent.putExtra("id", medId);
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+
         }
-
-
     }
+
+
+
+    public boolean correctlyConfigured(){
+
+        return true;
+    }
+
+
+
+
+
 
 }

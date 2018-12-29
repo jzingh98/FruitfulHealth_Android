@@ -115,16 +115,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     // Capture Text
                     String text = data.getStringExtra(OcrCaptureActivity.TextBlockObject);
                     statusMessage.setText(R.string.ocr_success);
-                    //textValue.setText(text);
-                    //parseMedication(text);
-
                     // Interpret Listings
                     String[] separatedListings = separateListings(text);
                     String[] medOnlyListings = parseListings(separatedListings);
-
-                    textValue.setText(Arrays.toString(medOnlyListings));
-
-
+                    // Start next activity
+                    passScannedListing(medOnlyListings);
+                    //textValue.setText(Arrays.toString(medOnlyListings));
                     Log.d(TAG, "Text read: " + text);
                 } else {
                     statusMessage.setText(R.string.ocr_failure);
@@ -210,7 +206,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
      *          successfully parsed features of the entry
      * Attempts to parse the name, dosage, unit, action, and instructions from an entry
      */
-    public String[] parseMedication(String scannedText) {
+    public static String[] parseMedication(String scannedText) {
         String arr[] = scannedText.split(" ", 100);
         String unit = "";
         String dosage = "";
@@ -255,9 +251,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
         parsedMedicationArray[4] = instruction;
 
         return parsedMedicationArray;
+    }
 
-//        textValue.setText("M: " + medname + "\nD: " + dosage + "\nU: " + unit +
-//                "\nA: " + action + "\nI: " + instruction);
+
+
+    public void passScannedListing(String[] scannedListings) {
 
 //        Intent i = new Intent(this, MedEntry.class);
 //        i.putExtra("MedName", medname);
@@ -265,12 +263,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 //        i.putExtra("Unit", unit);
 //        i.putExtra("Instruction", instruction);
 //        startActivity(i);
+
+        Intent i = new Intent(this, MedScannedListings.class);
+        i.putExtra("ScannedListings", scannedListings);
+        startActivity(i);
+
+
     }
 
-
-
-
-    
 
 
 }
