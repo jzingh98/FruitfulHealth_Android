@@ -161,6 +161,8 @@ public class MedScannedListings extends Activity implements View.OnClickListener
     {
         for(boolean b : array) if(!b) return false;
         return true;
+
+        
     }
 
 
